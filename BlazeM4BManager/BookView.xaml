@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 xmlns:local="clr-namespace:BlazeM4BManager.Domain.Models;assembly=BlazeM4BManager"
+			 xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+			 x:Class="BlazeM4BManager.BookView"
+			 Unloaded="ContentPage_Unloaded"
+			 >
+	<StackLayout>
+		<VerticalStackLayout x:Name="mnGrid">
+			<HorizontalStackLayout MaximumHeightRequest="150" Padding="10" Spacing="20">
+				<!--<Image MaximumHeightRequest="120" MaximumWidthRequest="100" Source="{Binding ImagePath}" />-->
+				<Label TextColor="OrangeRed" 
+					   VerticalOptions="Center" 
+					   LineBreakMode="WordWrap" 
+					   HorizontalOptions="Center" 
+					   Text="Hover here to read the book description" 
+					   ToolTipProperties.Text="{Binding Description}" FontSize="Small" />
+			</HorizontalStackLayout>
+			<toolkit:MediaElement x:Name="bookPlayer"
+							  Margin="20"
+							  ShouldAutoPlay="True"
+							  ShouldShowPlaybackControls="True"
+							  MetadataTitle="{Binding Title}"
+							  MetadataArtist="{Binding AuthorName}"
+							  >
+			</toolkit:MediaElement>
+			<HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Padding="10" Spacing="20">
+				<ImageButton Source="back.png" x:Name="Rewind" Clicked="Rewind_Clicked" />
+				<ImageButton Source="forward.png" x:Name="Forward" Clicked="Forward_Clicked" />
+				<ImageButton Source="bookmark.png" x:Name="AddBookMark" Clicked="AddBookMark_Clicked" />
+				<ImageButton Source="show.png" x:Name="ShowBookmarks" Clicked="ShowBookmarks_Clicked" />
+			</HorizontalStackLayout>
+		</VerticalStackLayout>
+		<VerticalStackLayout VerticalOptions="Center" Spacing="20" IsVisible="False" x:Name="BookmarksPanel">
+			<Label Text="Bookmarks" HorizontalOptions="Center" VerticalOptions="Center" FontSize="Large" TextColor="DeepSkyBlue" />
+			<CollectionView HorizontalOptions="Center" Margin="20"  VerticalOptions="Center" x:Name="BookmarksView"
+						SelectionChanged="BookmarksPanel_SelectionChanged"
+						SelectionMode="Single">
+				<CollectionView.ItemsLayout>
+					<LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+				</CollectionView.ItemsLayout>
+				<CollectionView.ItemTemplate>
+					<DataTemplate x:DataType="local:Bookmark">
+						<Grid Padding="10">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="Auto" />
+							</Grid.ColumnDefinitions>
+							<Label Grid.Column="0"
+							   Text="{Binding Title}"
+							   FontAttributes="Bold"
+							   LineBreakMode="WordWrap" />
+							<Label Grid.Row="1"
+							   Grid.Column="1"
+							   Text="{Binding PositionInString}"
+							   LineBreakMode="WordWrap"
+							   FontAttributes="Italic"
+							   VerticalOptions="End" />
+						</Grid>
+					</DataTemplate>
+				</CollectionView.ItemTemplate>
+			</CollectionView>
+		</VerticalStackLayout>
+	</StackLayout>
+
+</ContentPage>
