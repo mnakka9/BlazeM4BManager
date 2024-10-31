@@ -12,7 +12,6 @@ internal class ExtractService(ILogger<ExtractService> logger) : IExtractService
         Track track = new(fileInfo.FullName);
 
         logger.LogInformation("Extracting meta data from {FileName}", fileInfo.Name);
-        logger.LogInformation("Book details: {Data}", JsonSerializer.Serialize(track));
 
         string bookName = (track.Album, track.Title) switch
         {
@@ -66,16 +65,22 @@ internal class ExtractService(ILogger<ExtractService> logger) : IExtractService
 
                 if (!string.IsNullOrEmpty(imageExtension))
                 {
-                    string imageFileName = $"{bookName}{imageExtension}";
+                    string imageFileName = $"{Guid.NewGuid().ToString()}{imageExtension}";
                     string imageFilePath = Path.Combine(fileInfo.Directory!.FullName, imageFileName);
 
 
                     if (!File.Exists(imageFilePath))
                     {
-                        await File.WriteAllBytesAsync(imageFilePath, pictures[0].PictureData);
+                        try
+                        {
+                            await File.WriteAllBytesAsync(imageFilePath, pictures[0].PictureData);
+                            book.ImagePath = imageFilePath;
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError(ex, "Failed to write image to {FileName}", imageFileName);
+                        }
                     }
-
-                    book.ImagePath = imageFilePath;
                 }
             }
         }

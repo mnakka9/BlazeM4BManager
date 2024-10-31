@@ -8,7 +8,7 @@ public interface IAudioBookService
 
     Task<ViewBook?> GetBookByIdAsync(int id);
 
-    Task<int> AddAudioBooks(List<AudioBook> audioBooks);
+    Task<int> AddAudioBooksToDatabase(List<AudioBook> audioBooks);
 
     Task AddAudioBooks(List<string> files, string? imagePath = null);
 }

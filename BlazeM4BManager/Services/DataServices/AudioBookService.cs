@@ -2,22 +2,24 @@
 using BlazeM4BManager.Domain.Repositories.Interfaces;
 using BlazeM4BManager.Services.MetadataServices;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BlazeM4BManager.Services.DataServices;
 
 public class AudioBookService
     (IUnitOfWork unitOfWork,
-    IExtractService extractService
+    IExtractService extractService,
+    ILogger<AudioBookService> logger
     ) : IAudioBookService
 {
-    public async Task<int> AddAudioBooks(List<AudioBook> audioBooks)
+    public async Task<int> AddAudioBooksToDatabase(List<AudioBook> audioBooks)
     {
         if (audioBooks is null or { Count: 0 })
         {
             throw new InvalidDataException("No audio books to add");
         }
 
-        if (audioBooks.Any(x => !x.IsValid()))
+        if (audioBooks.Exists(x => !x.IsValid()))
         {
             throw new InvalidDataException("One or more audio books are invalid");
         }
@@ -51,18 +53,18 @@ public class AudioBookService
 
         foreach (var file in files)
         {
-            var book = await extractService.GetAudioBookData(new FileInfo(file), imagePath);
+            try
+            {
+                var book = await extractService.GetAudioBookData(new FileInfo(file), imagePath);
 
-            audioBooks.Add(book);
+                audioBooks.Add(book);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Issue while adding a book: {Book}", file);
+            }
         }
 
-        if (audioBooks.Count == 0 || audioBooks.Any(x => !x.IsValid()))
-        {
-            throw new InvalidDataException("One or more audio books are invalid");
-        }
-
-        await unitOfWork.AudioBookRepository.AddRangeAsync(audioBooks);
-
-        await unitOfWork.SaveChangesAsync();
+        await AddAudioBooksToDatabase(audioBooks);
     }
 }
